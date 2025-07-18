@@ -23,8 +23,8 @@ const adminNavigation = [
 
 const operatorNavigation = [
   { name: "Minha Área", href: "/operator-dashboard", icon: LayoutDashboard },
-  { name: "Empilhadeiras", href: "/forklifts", icon: Truck },
-  { name: "Manutenção", href: "/maintenance", icon: Settings },
+  { name: "Empilhadeiras", href: "/operator/forklifts", icon: Truck },
+  { name: "Manutenção", href: "/operator/maintenance", icon: Settings },
 ];
 
 interface NavbarProps {

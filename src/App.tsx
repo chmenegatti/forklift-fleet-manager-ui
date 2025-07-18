@@ -8,8 +8,10 @@ import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
 import OperatorDashboard from "./pages/OperatorDashboard";
 import Forklifts from "./pages/Forklifts";
+import OperatorForklifts from "./pages/OperatorForklifts";
 import Operators from "./pages/Operators";
 import Maintenance from "./pages/Maintenance";
+import OperatorMaintenance from "./pages/OperatorMaintenance";
 import Reports from "./pages/Reports";
 import NotFound from "./pages/NotFound";
 
@@ -23,12 +25,18 @@ const App = () => (
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Login />} />
+          {/* Admin Routes */}
           <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/operator-dashboard" element={<OperatorDashboard />} />
           <Route path="/forklifts" element={<Forklifts />} />
           <Route path="/operators" element={<Operators />} />
           <Route path="/maintenance" element={<Maintenance />} />
           <Route path="/reports" element={<Reports />} />
+          
+          {/* Operator Routes */}
+          <Route path="/operator-dashboard" element={<OperatorDashboard />} />
+          <Route path="/operator/forklifts" element={<OperatorForklifts />} />
+          <Route path="/operator/maintenance" element={<OperatorMaintenance />} />
+          
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
