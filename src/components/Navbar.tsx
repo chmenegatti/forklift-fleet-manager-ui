@@ -13,12 +13,18 @@ import {
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
-const navigation = [
+const adminNavigation = [
   { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
   { name: "Empilhadeiras", href: "/forklifts", icon: Truck },
   { name: "Operadores", href: "/operators", icon: Users },
   { name: "Manutenção", href: "/maintenance", icon: Settings },
   { name: "Relatórios", href: "/reports", icon: FileText },
+];
+
+const operatorNavigation = [
+  { name: "Minha Área", href: "/operator-dashboard", icon: LayoutDashboard },
+  { name: "Empilhadeiras", href: "/forklifts", icon: Truck },
+  { name: "Manutenção", href: "/maintenance", icon: Settings },
 ];
 
 interface NavbarProps {
@@ -30,6 +36,9 @@ export function Navbar({ userType = "admin" }: NavbarProps) {
   const navigate = useNavigate();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
+  // Select navigation items based on user type
+  const navigation = userType === "operator" ? operatorNavigation : adminNavigation;
+
   const handleLogout = () => {
     navigate("/");
   };
@@ -39,7 +48,7 @@ export function Navbar({ userType = "admin" }: NavbarProps) {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16">
           <div className="flex items-center">
-            <Link to="/dashboard" className="flex items-center space-x-3">
+            <Link to={userType === "operator" ? "/operator-dashboard" : "/dashboard"} className="flex items-center space-x-3">
               <div className="bg-primary p-2 rounded-lg">
                 <Truck className="h-6 w-6 text-primary-foreground" />
               </div>
