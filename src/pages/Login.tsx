@@ -24,7 +24,13 @@ export default function Login() {
         title: "Login realizado com sucesso!",
         description: `Bem-vindo ao ForkLift Manager`,
       });
-      navigate("/dashboard");
+      
+      // Redirect based on user type
+      if (userType === "operator") {
+        navigate("/operator-dashboard");
+      } else {
+        navigate("/dashboard");
+      }
     }, 1500);
   };
 
