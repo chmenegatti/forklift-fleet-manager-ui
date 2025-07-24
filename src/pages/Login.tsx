@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { loginAdmin } from "@/lib/utils";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -16,22 +17,35 @@ export default function Login() {
 
   const handleLogin = async (userType: "admin" | "operator") => {
     setIsLoading(true);
-    
-    // Simular login
-    setTimeout(() => {
-      setIsLoading(false);
+    let email = "";
+    let password = "";
+    if (userType === "admin") {
+      email = (document.getElementById("admin-email") as HTMLInputElement)?.value;
+      password = (document.getElementById("admin-password") as HTMLInputElement)?.value;
+    } else {
+      email = (document.getElementById("operator-email") as HTMLInputElement)?.value;
+      password = (document.getElementById("operator-password") as HTMLInputElement)?.value;
+    }
+    const token = await loginAdmin(email, password);
+    setIsLoading(false);
+    if (token) {
+      localStorage.setItem("jwt_token", token);
       toast({
         title: "Login realizado com sucesso!",
         description: `Bem-vindo ao ForkLift Manager`,
       });
-      
-      // Redirect based on user type
       if (userType === "operator") {
         navigate("/operator-dashboard");
       } else {
         navigate("/dashboard");
       }
-    }, 1500);
+    } else {
+      toast({
+        title: "Erro ao autenticar",
+        description: "Verifique seu e-mail e senha.",
+        variant: "destructive",
+      });
+    }
   };
 
   return (

@@ -1,11 +1,11 @@
 import { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { 
-  LayoutDashboard, 
-  Settings, 
-  Users, 
-  Truck, 
-  FileText, 
+import {
+  LayoutDashboard,
+  Settings,
+  Users,
+  Truck,
+  FileText,
   LogOut,
   Menu,
   X
@@ -40,6 +40,7 @@ export function Navbar({ userType = "admin" }: NavbarProps) {
   const navigation = userType === "operator" ? operatorNavigation : adminNavigation;
 
   const handleLogout = () => {
+    localStorage.removeItem("jwt_token");
     navigate("/");
   };
 
@@ -61,7 +62,7 @@ export function Navbar({ userType = "admin" }: NavbarProps) {
             {navigation.map((item) => {
               const Icon = item.icon;
               const isActive = location.pathname === item.href;
-              
+
               return (
                 <Link
                   key={item.name}
@@ -78,7 +79,7 @@ export function Navbar({ userType = "admin" }: NavbarProps) {
                 </Link>
               );
             })}
-            
+
             <div className="ml-4 flex items-center space-x-3">
               <span className="text-sm text-muted-foreground">
                 {userType === "admin" ? "Administrador" : "Operador"}
@@ -114,7 +115,7 @@ export function Navbar({ userType = "admin" }: NavbarProps) {
             {navigation.map((item) => {
               const Icon = item.icon;
               const isActive = location.pathname === item.href;
-              
+
               return (
                 <Link
                   key={item.name}
@@ -132,7 +133,7 @@ export function Navbar({ userType = "admin" }: NavbarProps) {
                 </Link>
               );
             })}
-            
+
             <div className="border-t border-border pt-3 mt-3">
               <div className="px-3 py-2 text-sm text-muted-foreground">
                 {userType === "admin" ? "Administrador" : "Operador"}
