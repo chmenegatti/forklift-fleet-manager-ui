@@ -1,118 +1,51 @@
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Navbar } from "@/components/Navbar";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
-import { 
-  Truck, 
-  Users, 
-  Settings, 
-  AlertTriangle, 
-  Plus,
-  CheckCircle,
-  Clock,
-  XCircle,
-  Calendar,
-  BarChart3
-} from "lucide-react";
+import { getDashboardData } from "@/lib/api";
+import { Truck, Users, Settings, Plus, BarChart3, CheckCircle, Clock, Calendar } from "lucide-react";
 
-const stats = [
-  {
-    title: "Total de Empilhadeiras",
-    value: "24",
-    icon: Truck,
-    description: "19 ativas, 5 em manutenção",
-    color: "primary"
-  },
-  {
-    title: "Operadores Ativos",
-    value: "18",
-    icon: Users,
-    description: "12 operando agora",
-    color: "success"
-  },
-  {
-    title: "Manutenções Pendentes",
-    value: "7",
-    icon: Settings,
-    description: "3 urgentes, 4 programadas",
-    color: "warning"
-  },
-  {
-    title: "Alertas de Segurança",
-    value: "2",
-    icon: AlertTriangle,
-    description: "Requer atenção imediata",
-    color: "destructive"
-  }
-];
+// ...existing code...
 
-const recentMaintenance = [
-  {
-    id: "EMP-001",
-    name: "Toyota 8FBN25",
-    type: "Manutenção Preventiva",
-    date: "2024-01-20",
-    status: "agendada",
-    technician: "João Silva"
-  },
-  {
-    id: "EMP-007",
-    name: "Hyster H3.0FT",
-    type: "Troca de Óleo",
-    date: "2024-01-18",
-    status: "concluida",
-    technician: "Maria Santos"
-  },
-  {
-    id: "EMP-012",
-    name: "Crown FC5252",
-    type: "Reparo no Sistema Hidráulico",
-    date: "2024-01-19",
-    status: "em-andamento",
-    technician: "Pedro Lima"
-  },
-  {
-    id: "EMP-018",
-    name: "Yale GDP25VX",
-    type: "Inspeção de Segurança",
-    date: "2024-01-22",
-    status: "agendada",
-    technician: "Ana Costa"
-  }
-];
-
-const getStatusColor = (status: string) => {
-  switch (status) {
-    case "concluida":
-      return "success";
-    case "em-andamento":
-      return "warning";
-    case "agendada":
-      return "secondary";
-    default:
-      return "secondary";
-  }
-};
-
-const getStatusIcon = (status: string) => {
-  switch (status) {
-    case "concluida":
-      return CheckCircle;
-    case "em-andamento":
-      return Clock;
-    case "agendada":
-      return Calendar;
-    default:
-      return Clock;
-  }
+type DashboardData = {
+  totalEmpilhadeiras: number;
+  totalManutencoes: number;
+  manutencoesPendentes: number;
+  manutencoesConcluidas: number;
+  totalChecklists: number;
+  checklistsAprovados: number;
+  checklistsReprovados: number;
+  totalOperadores: number;
 };
 
 export default function Dashboard() {
+  const [data, setData] = useState<DashboardData | null>(null);
+  const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const token = localStorage.getItem("jwt_token");
+    if (!token) {
+      navigate("/");
+      return;
+    }
+    getDashboardData(token)
+      .then(setData)
+      .catch(() => {
+        navigate("/");
+      })
+      .finally(() => setLoading(false));
+  }, [navigate]);
+
+  if (loading) return <div className="p-8">Carregando...</div>;
+  if (!data) return <div className="p-8">Erro ao carregar dados do dashboard.</div>;
+
   return (
     <div className="min-h-screen bg-background">
       <Navbar userType="admin" />
-      
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-foreground mb-2">Dashboard</h1>
@@ -123,60 +56,89 @@ export default function Dashboard() {
 
         {/* Stats Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          {stats.map((stat) => {
-            const Icon = stat.icon;
-            return (
-              <Card key={stat.title}>
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">
-                    {stat.title}
-                  </CardTitle>
-                  <Icon className="h-4 w-4 text-muted-foreground" />
-                </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold">{stat.value}</div>
-                  <p className="text-xs text-muted-foreground">
-                    {stat.description}
-                  </p>
-                </CardContent>
-              </Card>
-            );
-          })}
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Empilhadeiras</CardTitle>
+              <Truck className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{data.totalEmpilhadeiras}</div>
+              <p className="text-xs text-muted-foreground">Total de empilhadeiras cadastradas</p>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Operadores</CardTitle>
+              <Users className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{data.totalOperadores}</div>
+              <p className="text-xs text-muted-foreground">Total de operadores</p>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Manutenções</CardTitle>
+              <Settings className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{data.totalManutencoes}</div>
+              <p className="text-xs text-muted-foreground">Total de manutenções</p>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Checklists</CardTitle>
+              <BarChart3 className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{data.totalChecklists}</div>
+              <p className="text-xs text-muted-foreground">Total de checklists</p>
+            </CardContent>
+          </Card>
         </div>
 
+        {/* Quick Actions */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
-          {/* Fleet Status */}
+          {/* Gráfico unificado de Manutenções e Checklists */}
           <Card className="lg:col-span-2">
             <CardHeader>
               <CardTitle className="flex items-center space-x-2">
                 <BarChart3 className="h-5 w-5" />
-                <span>Status da Frota</span>
+                <span>Status Geral</span>
               </CardTitle>
               <CardDescription>
-                Distribuição atual das empilhadeiras
+                Distribuição de manutenções e checklists
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div>
                 <div className="flex justify-between items-center mb-2">
-                  <span className="text-sm font-medium">Operacionais</span>
-                  <span className="text-sm text-muted-foreground">19/24 (79%)</span>
+                  <span className="text-sm font-medium">Manutenções Pendentes</span>
+                  <span className="text-sm text-muted-foreground">{data.manutencoesPendentes}/{data.totalManutencoes} ({((data.manutencoesPendentes / data.totalManutencoes) * 100).toFixed(0)}%)</span>
                 </div>
-                <Progress value={79} className="h-2" />
+                <Progress value={data.totalManutencoes ? (data.manutencoesPendentes / data.totalManutencoes) * 100 : 0} className="h-2" />
               </div>
               <div>
                 <div className="flex justify-between items-center mb-2">
-                  <span className="text-sm font-medium">Em Manutenção</span>
-                  <span className="text-sm text-muted-foreground">5/24 (21%)</span>
+                  <span className="text-sm font-medium">Manutenções Concluídas</span>
+                  <span className="text-sm text-muted-foreground">{data.manutencoesConcluidas}/{data.totalManutencoes} ({((data.manutencoesConcluidas / data.totalManutencoes) * 100).toFixed(0)}%)</span>
                 </div>
-                <Progress value={21} className="h-2" />
+                <Progress value={data.totalManutencoes ? (data.manutencoesConcluidas / data.totalManutencoes) * 100 : 0} className="h-2" />
               </div>
               <div>
                 <div className="flex justify-between items-center mb-2">
-                  <span className="text-sm font-medium">Disponíveis</span>
-                  <span className="text-sm text-muted-foreground">7/19 (37%)</span>
+                  <span className="text-sm font-medium">Checklists Aprovados</span>
+                  <span className="text-sm text-muted-foreground">{data.checklistsAprovados}/{data.totalChecklists} ({((data.checklistsAprovados / data.totalChecklists) * 100).toFixed(0)}%)</span>
                 </div>
-                <Progress value={37} className="h-2" />
+                <Progress value={data.totalChecklists ? (data.checklistsAprovados / data.totalChecklists) * 100 : 0} className="h-2" />
+              </div>
+              <div>
+                <div className="flex justify-between items-center mb-2">
+                  <span className="text-sm font-medium">Checklists Reprovados</span>
+                  <span className="text-sm text-muted-foreground">{data.checklistsReprovados}/{data.totalChecklists} ({((data.checklistsReprovados / data.totalChecklists) * 100).toFixed(0)}%)</span>
+                </div>
+                <Progress value={data.totalChecklists ? (data.checklistsReprovados / data.totalChecklists) * 100 : 0} className="h-2" />
               </div>
             </CardContent>
           </Card>
@@ -209,59 +171,6 @@ export default function Dashboard() {
             </CardContent>
           </Card>
         </div>
-
-        {/* Recent Maintenance */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center space-x-2">
-              <Settings className="h-5 w-5" />
-              <span>Manutenções Recentes</span>
-            </CardTitle>
-            <CardDescription>
-              Últimas atividades de manutenção programadas e realizadas
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              {recentMaintenance.map((maintenance) => {
-                const StatusIcon = getStatusIcon(maintenance.status);
-                return (
-                  <div
-                    key={maintenance.id}
-                    className="flex items-center justify-between p-4 border border-border rounded-lg"
-                  >
-                    <div className="flex items-center space-x-4">
-                      <div className="flex items-center space-x-2">
-                        <StatusIcon className="h-4 w-4" />
-                        <div>
-                          <p className="font-medium">{maintenance.name}</p>
-                          <p className="text-sm text-muted-foreground">
-                            {maintenance.type}
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-                    <div className="flex items-center space-x-4">
-                      <div className="text-right">
-                        <p className="text-sm font-medium">{maintenance.date}</p>
-                        <p className="text-xs text-muted-foreground">
-                          {maintenance.technician}
-                        </p>
-                      </div>
-                      <Badge variant={getStatusColor(maintenance.status) as any}>
-                        {maintenance.status === "concluida"
-                          ? "Concluída"
-                          : maintenance.status === "em-andamento"
-                          ? "Em Andamento"
-                          : "Agendada"}
-                      </Badge>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          </CardContent>
-        </Card>
       </main>
     </div>
   );
